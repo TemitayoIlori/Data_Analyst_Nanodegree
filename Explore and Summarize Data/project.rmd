@@ -1,0 +1,425 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
+---
+title: "Wine Quality Data Analysis"
+author : "Temitayo Ilori"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+------------------
+
+>
+
+> 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, packages}
+#Load all libraries needed in this project
+
+library(ggplot2)
+library(Hmisc)
+library(psych)
+library(pastecs)
+library(corrplot)
+library(data.table)
+library("PerformanceAnalytics")
+
+# knitr: Suppress code/messages/warnings 
+#        Set default plot options and center them
+knitr::opts_chunk$set(fig.width=9,fig.height=5,fig.path='Figs/',
+                      fig.align='center',tidy=TRUE,
+                      echo=FALSE,warning=FALSE,message=FALSE)
+
+```
+
+```{r echo=FALSE,message=FALSE,warning=FALSE, Load_the_Data}
+# Load the Data
+wine_data=read.csv("wineQualityReds.csv", sep=',')
+wine_data$X <- NULL
+
+str(wine_data)
+
+names(wine_data)
+
+describe(wine_data)
+
+summary(wine_data)
+
+```
+
+> 
+
+# Univariate Plots Section
+
+> 
+
+```{r echo=FALSE,message=FALSE,warning=FALSE, Univariate_Plots}
+# Histogram - Quality
+qplot(x=quality, data = wine_data, binwidth = 1, color = I("white"))+
+  scale_x_continuous(breaks=1:8)
+
+```
+
+I chose to use histogram because I wanted to see the distributions of Quality and to graphically summarize it. Quality seems to be normally distributed.
+
+```{r echo=FALSE,message=FALSE,warning=FALSE, Univariate_Plot}
+
+# Histogram - fixed.acidity
+qplot(x=fixed.acidity, data = wine_data, binwidth=1)+
+  scale_x_continuous(breaks=1:17)
+
+```
+
+I chose to use histogram because I wanted to see the distributions of fixed acidity and to graphically summarize it. The distribution is positively skewed.
+
+
+```{r echo=FALSE,message=FALSE,warning=FALSE, fig.width=10, fig.height=8}
+# Histogram - volatile.acidity
+qplot(x=volatile.acidity, data = wine_data)+
+  scale_x_continuous(breaks=seq(0,1.6,0.05))
+
+```
+
+I chose to use histogram because I wanted to see the distributions of volatile acidity and to graphically summarize it. The distribution seems bimodal.
+
+
+```{r echo=FALSE,message=FALSE,warning=FALSE, fig.width=10, fig.height=8}
+# Histogram - citric.acid
+qplot(x=citric.acid, data = wine_data)+
+  scale_x_continuous(breaks=seq(0,1.0,0.05))
+
+```
+
+I chose to use histogram because I wanted to see the distributions of citric acid and to graphically summarize it. The distribution seems bimodal.
+
+
+
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+# Histogram - residual.sugar
+qplot(x=residual.sugar, data = wine_data, binwidth=1)+
+  scale_x_continuous(breaks=1:17)
+```
+
+I chose to use histogram because I wanted to see the distributions of residual sugar and to graphically summarize it. Residual sugar is positively skewed with a few outliers.
+
+
+```{r echo=FALSE,message=FALSE,warning=FALSE, fig.width=10, fig.height=8}
+# Histogram - chlorides
+qplot(x=chlorides, data = wine_data)+
+  scale_x_continuous(breaks=seq(0,0.6,0.03))
+
+```
+I chose to use histogram because I wanted to see the distributions of chlride and to graphically summarize it. Chlorides is positively skewed with a couple of outliers.
+
+
+```{r echo=FALSE,message=FALSE,warning=FALSE, fig.width=10, fig.height=8}
+# Histogram - free.sulfur.dioxide
+qplot(x=free.sulfur.dioxide, data = wine_data)+
+  scale_x_continuous(breaks=seq(0,80,2))
+```
+
+I chose to use histogram because I wanted to see the distributions of free sulphure dioxide and to graphically summarize it. The distribution is positively skewed.
+
+```{r echo=FALSE,message=FALSE,warning=FALSE, fig.width=10, fig.height=8}
+# Histogram - total.sulfur.dioxide
+qplot(x=total.sulfur.dioxide, data = wine_data)+
+  scale_x_continuous(breaks=seq(0,160,5), limits = c(0,160))
+
+```
+I chose to use histogram because I wanted to see the distributions of total sulphur dioxide and to graphically summarize it. The distribution is positively skewed.
+
+
+
+```{r echo=FALSE,message=FALSE,warning=FALSE,  fig.width=14, fig.height=8}
+# Histogram - density
+qplot(x=density, data = wine_data)+
+  scale_x_continuous(breaks=seq(0.990,1.5,0.0005))
+```
+
+
+I chose to use histogram because I wanted to see the distributions of Density and to graphically summarize it. Density is normally distributed
+
+```{r echo=FALSE,message=FALSE,warning=FALSE, fig.width=10, fig.height=4}
+# Histogram - pH
+qplot(x=pH, data = wine_data)+
+  scale_x_continuous(breaks=seq(2.8,4.5,0.05))
+  scale_x_continuous(breaks=seq(8,14,0.4), limits = c(8,14))
+```
+
+I chose to use histogram because I wanted to see the distributions of pH and to graphically summarize it. pH is normaly distributed.
+
+
+
+```{r echo=FALSE,message=FALSE,warning=FALSE,  fig.width=10, fig.height=8}
+# Histogram - sulphates
+qplot(x=sulphates, data = wine_data)+
+  scale_x_continuous(breaks=seq(0.3,1.2,0.05), limits = c(0.3,1.2))
+```
+
+I chose to use histogram because I wanted to see the distributions of sulphates and to graphically summarize it. Sulphates is just a little bit positively skewed.
+
+
+
+```{r echo=FALSE,message=FALSE,warning=FALSE,  fig.width=10, fig.height=8}
+# Histogram - alcohol
+qplot(x=alcohol, data = wine_data)+
+  scale_x_continuous(breaks=seq(8,14,0.4), limits = c(8,14))
+```
+
+
+I chose to use histogram because I wanted to see the distributions of alcohol and to graphically summarize it. Alcohol is positively skewed.
+
+
+
+> 
+
+# Univariate Analysis
+
+> 
+
+### What is the structure of your dataset?
+
+There are 1599 observations in the dataset with 12 variables (fixed.acidity, volatile.acidity, citric.acid, residual.sugar, chlorides, free.sulfur.dioxide, total.sulfur.dioxide, density, pH, sulphates, alcohol and quality). 
+
+### What is/are the main feature(s) of interest in your dataset?
+
+The main feature of my dataset is Quality. I would like to know what factors can be used to predict wine quality.
+
+### What other features in the dataset do you think will help support your \investigation into your feature(s) of interest?
+
+Alcohol, PH, density, fixed acidity and citric acid.
+
+### Did you create any new variables from existing variables in the dataset?
+
+No.
+
+### Of the features you investigated, were there any unusual distributions? \Did you perform any operations on the data to tidy, adjust, or change the form \of the data? If so, why did you do this?
+
+No.
+
+# Bivariate Plots Section
+
+> 
+
+
+
+```{r echo=FALSE,message=FALSE,warning=FALSE, Bivariate_Plots, fig.width=10, fig.height=8}
+# In order to make the charts more readable, I'll create a copy of the dataset and rename the fields with abbreviations.
+
+abb.wine_data<-copy(wine_data)
+setnames(abb.wine_data, old=c("fixed.acidity","volatile.acidity","residual.sugar","citric.acid","total.sulfur.dioxide","free.sulfur.dioxide"), new=c("fixed\nacidity", "volatile\nacidity","residual\nsugar","citric\nacid","total\nsulfur\ndioxide","free\nsulfur\ndioxide"))
+
+```
+
+
+
+```{r echo=FALSE,message=FALSE,warning=FALSE, fig.width=10, fig.height=8}
+
+# Run a pearson correlation of the fields two-by-two.
+round(cor(abb.wine_data, method="pearson"),2)
+corrplot(cor(wine_data), method="number") 
+```
+
+I chose correlation plot to show the correlation between each pair of wine characteristics.The highest correlation is between PH and fixed acidity (-0.68)
+
+```{r echo=FALSE,message=FALSE,warning=FALSE,  fig.width=10, fig.height=8}
+
+#plot  f.acidity against quality
+qplot(fixed.acidity, quality, data = wine_data, geom = "jitter")
+
+```
+
+I chose scatter plot to show the relationship between quality and fixed acitity.There doesn't seem to be a difined relationship between them.
+
+```{r echo=FALSE,message=FALSE,warning=FALSE, fig.width=10, fig.height=8}
+
+# Plot v.acidity against quality
+qplot(volatile.acidity, quality, data = wine_data, geom = "jitter")
+
+```
+I chose scatter plot to show the relationship between quality and volatile acidity.There doesn't seem to be a difined relationship between them.
+
+
+```{r echo=FALSE,message=FALSE,warning=FALSE, fig.width=10, fig.height=8}
+# PLot sulphages against quality
+qplot(sulphates, quality, data = wine_data, geom = "jitter")
+```
+I chose scatter plot to show the relationship between quality and sulphate.Most of the samples seem to have sulphate proportion of 1.5
+
+
+```{r echo=FALSE,message=FALSE,warning=FALSE,  fig.width=10, fig.height=8}
+# Plot alcohol again quality
+qplot(alcohol, quality, data = wine_data, geom = "jitter")+
+  scale_x_continuous(breaks=seq(8,14,0.4), limits = c(8,14))+
+  scale_y_continuous(breaks=1:8)
+
+```
+I chose scatter plot to show the relationship between quality and alcohol.There doesn't seem to be a difined relationship between them.
+
+```{r echo=FALSE,message=FALSE,warning=FALSE,  fig.width=10, fig.height=8}
+# This includes a correlation chart of all the fields in the dataset
+chart.Correlation(abb.wine_data, histogram=TRUE, pch=19)
+```
+
+I chose correlation matrix because it shows both the correlation of each variable to each of the other variables as well as the relationship between them.
+
+
+# Bivariate Analysis
+
+> 
+
+### Talk about some of the relationships you observed in this part of the investigation. How did the feature(s) of interest vary with other features in the dataset?
+
+Quality doesn't seem to have any good correlation with any of the features. The highest correlation is with alcohol with a correlation of  positive 0.48 followed by volatile.acidity with a correlation of positive 0.39. Other correlations are less than 0.3.
+
+### Did you observe any interesting relationships between the other features (not the main feature(s) of interest)?
+
+Free sulphur dioxide and total sulphu dioxide have moderate positive correlation of 0.67. In the same way citric.acid and fixed acidity have moderate positive correlation of 0.67. There is also a moderate posituve Also, PH and fixed acidity have a moderate negative correlation of -0.68.
+
+### What was the strongest relationship you found?
+
+The strongest relationship found is a negative correlation of -0.68 between PH and fixed acidity.
+
+# Multivariate Plots Section
+
+>
+
+```{r echo=FALSE,message=FALSE,warning=FALSE, Multivariate_Plots}
+# scatterplot - alcohol and residual sugar, by quality levels
+ggplot(wine_data, aes(x = alcohol, y= residual.sugar)) +
+  geom_point(aes(color=as.factor(quality))) +
+  scale_color_brewer(palette = "RdYlBu", direction = -1, name = "Quality")
+```
+I chose scatter plot to show the relationship between residual sugar, alcohol and quality. There doesn't seem to be a defined relationship between the variables, except for lower quality wine that seem to fall to the left of the alcohol axis.
+
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+# scatterplot - alcohol and citic.acid content by quality
+ggplot(wine_data, aes(x = alcohol, y= citric.acid)) +
+  geom_point(aes(color=as.factor(quality))) +
+  scale_color_brewer(palette = "RdYlBu", direction = -1, name = "Quality")
+
+```
+I chose scatter plot to show the relationship between citric acidity, alcohol and quality. Lower quality wine seem to fall to the left of the alcohol axis.
+
+
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+# scatterplot - alcohol and fixed.acidity content by quality
+ggplot(wine_data, aes(x = alcohol, y= fixed.acidity)) +
+  geom_point(aes(color=as.factor(quality))) +
+  scale_color_brewer(palette = "RdYlBu", direction = -1, name = "Quality")
+
+```
+I chose scatter plot to show the relationship between fixed acidity, alcohol and quality.
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+# scatterplot - alcohol and volatile.acidity content by quality
+ggplot(wine_data, aes(x = alcohol, y= volatile.acidity)) +
+  geom_point(aes(color=as.factor(quality))) +
+  scale_color_brewer(palette = "RdYlBu", direction = -1, name = "Quality")
+
+```
+I chose scatter plot to show the relationship between volatile acidity, alcohol and quality.
+
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+fit <- lm(quality ~ alcohol + sulphates + volatile.acidity, data=wine_data)
+summary(fit) # show results
+```
+I chose regression model in order to show the linear relationship between quality and alcohol, sulphates and volatile acidity. More explanation of the model is below.
+
+
+
+I chose scatter plot because I needed to see the relationship between more than two variables. Two variables are on x and y axis and the third is ued as a color.
+
+
+# Multivariate Analysis
+
+### Talk about some of the relationships you observed in this part of the investigation. Were there features that strengthened each other in terms of \looking at your feature(s) of interest?
+
+I created a regression model that uses alcohol, sulphates and volcatile acidity as the predictor and quality as the response variable. I chose those predictors because they have the highest correlations with quality.
+The F-Statistict is 268.9 and the p-value < 2.2e-16, which means that at least one of the predictor variables is significantly related to Quality.
+
+The p-value of each of the variables shows they are all significant in predicting Quality.Thus, the equation for predicting quality is Quality= 2.61083 + 0.30922alcohol + 0.67903sulphates -1.22140volatile.acidity
+
+Adjusted R-squared:  0.3346. This means our model can only predict 33% of the variation in the Quality. This is a little low.
+
+### Were there any interesting or surprising interactions between features?
+I found that wine with lower alchohol level tend to have lower quality.
+
+### OPTIONAL: Did you create any models with your dataset? Discuss the strengths and limitations of your model.
+
+------
+
+# Final Plots and Summary
+
+> 
+
+### Plot one
+```{r echo=FALSE,message=FALSE,warning=FALSE,  Plot_Two}
+#Plot the histogram of alcohol content of wine.
+
+qplot(x=alcohol, data = wine_data,fill=I("blue"), col=I("black"))+
+  scale_x_continuous(breaks=seq(8,14,0.4), limits = c(8,14))+ 
+  ggtitle('Alcohol Content')+ 
+  xlab("Quality (score between 0 and 10)") +
+  ylab("Count")
+
+```
+
+### Description one
+This chart has been enhanced by adding fill color (blue) and the line color (black). I also added the unit to the Quality axis. The title as well as the y axis label have been added.It can be seen that the chart is positively skewed. The median is around 9.6 while the mean (10.42) is to the right of the median.
+
+### Plot Two
+```{r echo=FALSE,message=FALSE,warning=FALSE, Plot_Three}
+# Plot the histogram of Residual Sugar content of wine.
+
+qplot(x=residual.sugar, data = wine_data, binwidth=1,fill=I("blue"), col=I("black"))+
+  scale_x_continuous(breaks=1:17)+ 
+  ggtitle('Histogram - Residual Sugar Content')+ 
+  xlab(expression(Residual~Sugar~(g/dm^{3}))) +
+  ylab("Count")
+
+
+```
+
+### Description Two
+
+This chart has been enhanced by adding fill color (blue) and the line color (black). The title as well as the y axis label have been added.This chart is equally positively skewed. The median is 2 while the mean (2.54) is to the right.
+
+### Plot three
+```{r echo=FALSE, message=FALSE,warning=FALSE, Plot_One}
+# scatterplot - alcohol and volatile.acidity content by quality
+ggplot(wine_data, aes(x = alcohol, y= volatile.acidity )) +
+  labs(x="alcohol (% by volume)", y="volatile acidity (acetic acid - g / dm^3)")+
+  geom_point(aes(color=as.factor(quality))) +
+  scale_color_brewer(palette = "RdYlBu", direction = -1, name="Quality (score between 0 and 10)") + ggtitle("Scatterplot - alcohol and volatile.acidity content by quality")
+
+```
+
+### Description three
+This plot has been imporoved by adding the title. I also gave the Legend a more descriptive name. I added the unit of measurement to both x and y axis. Wine quality tends to increase as alcohol content increases and as volatile acidity redduces.
+
+------
+
+# Reflection
+The data is pretty clean and there was no need to modify it. After assessing the data, I just went straight to the Summary statistics of the data. Then I went to the univariate plot section. I plotted the historgam of each of the variables. Most of them were normally distributed. The major issue I had with the histogram was determining the bin size.
+
+I was interested in which of the other variables could be used to predict the quality of wine. I plotted a correlation plot of each pair of the variables. Most of the correlations are so small. The highest was a correlation of -0.68  between pH and  fixed acidity.
+
+Most of the bivariate plot show no correlation. In the multivariate plots, however, it can be seen that lower quality wine tend to have lower alcohol content. 
+
+I did a regression analysis of quality against alcohol, sulphates and  volatile acidity. All the variables, together, are significant in predicting the quality of wine.
+
+It would have been nice to know how the Quality of wine is measured.
+
+
+
+> 
